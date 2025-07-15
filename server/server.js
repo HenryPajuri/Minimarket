@@ -20,8 +20,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: process.env.NODE_ENV === "production"
-    ? "https://yourproductiondomain.com"
+  origin: process.env.NODE_ENV === "production" 
+    ? "https://minimarket-f1r5.onrender.com"  
     : "http://localhost:4000",
   credentials: true,
 }));
