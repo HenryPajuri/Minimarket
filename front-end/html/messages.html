@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages • MiniMarket</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/messages.css">
+</head>
+<body>
+  <header class="sticky-header">
+    <div class="top-bar">
+      <div class="container">
+        <a class="logo" href="/html/index.html">MiniMarket</a>
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+            <line x1="16" y1="16" x2="22" y2="22" stroke="currentColor" stroke-width="2" />
+          </svg>
+          <input id="searchInput" type="text" placeholder="Search for items" autocomplete="off">
+        </div>
+        <div class="nav-auth">
+          <span id="navUser"></span>
+          <button id="loginBtn" class="btn">Sign up | Log in</button>
+          <button id="logoutBtn" class="btn hidden">Logout</button>
+        </div>
+      </div>
+    </div>
+    <nav class="nav-bar">
+      <ul>
+        <li><a href="/html/index.html">Browse</a></li>
+        <li><a href="/html/index.html">Sell</a></li>
+        <li><a href="/html/messages.html" class="active">Messages</a></li>
+        <li><a href="/html/about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="messages-container">
+      <div class="messages-header">
+        <h1>Messages</h1>
+        <span id="unreadCount" class="unread-count hidden">0 unread</span>
+      </div>
+
+      <div class="messages-layout">
+        <div class="conversations-panel">
+          <div class="conversations-header">
+            <h2>Conversations</h2>
+            <button id="refreshBtn" class="refresh-btn">↻</button>
+          </div>
+          <div id="conversationsList" class="conversations-list">
+            <div class="loading">Loading conversations...</div>
+          </div>
+        </div>
+
+        <div class="chat-panel">
+          <div id="chatInterface" class="chat-interface">
+            <div class="chat-welcome">
+              <h3>Welcome to Messages</h3>
+              <p>Select a conversation to start chatting, or browse items to message sellers.</p>
+            </div>
+          </div>
+
+          <div id="activeChat" class="active-chat hidden">
+            <div class="chat-header">
+              <div class="chat-user-info">
+                <div class="chat-avatar" id="chatAvatar"></div>
+                <div class="chat-details">
+                  <h3 id="chatUserName"></h3>
+                  <div id="chatProductInfo" class="chat-product-info hidden"></div>
+                </div>
+              </div>
+              <button id="closeChatBtn" class="close-chat-btn">×</button>
+            </div>
+            
+            <div id="messagesList" class="messages-list">
+              <div class="loading">Loading messages...</div>
+            </div>
+            
+            <form id="messageForm" class="message-form">
+              <input id="messageInput" type="text" placeholder="Type a message..." required>
+              <button type="submit" class="send-btn">Send</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="authModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeModal" class="close">&times;</button>
+      <div class="tabs">
+        <button id="showLogin" class="tab active">Login</button>
+        <button id="showSignup" class="tab">Sign up</button>
+      </div>
+      <form id="loginForm" class="auth-form">
+        <input id="loginEmail" type="email" placeholder="Email" required>
+        <input id="loginPassword" type="password" placeholder="Password" required>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+      <form id="signupForm" class="auth-form hidden">
+        <input id="signupName" type="text" placeholder="Username" required>
+        <input id="signupEmail" type="email" placeholder="Email" required>
+        <input id="signupPassword" type="password" placeholder="Password" required>
+        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="onTurnstileSuccess"></div>
+        <button type="submit" class="btn-primary">Create account</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="startConversationModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeStartConversationModal" class="close">&times;</button>
+      <h3>Message Seller</h3>
+      <form id="startConversationForm" class="auth-form">
+        <textarea id="initialMessage" placeholder="Hi! I'm interested in your item..." required rows="4"></textarea>
+        <button type="submit" class="btn-primary">Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script type="module" src="/js/messages.js"></script>
+</body>
+</html>

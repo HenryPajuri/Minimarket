@@ -1,0 +1,166 @@
+.item-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.product-detail {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+  justify-content: center;
+}
+
+.gallery {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.thumbnails img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border 0.2s;
+}
+
+.thumbnails img.selected {
+  border-color: #4bb6ac;
+}
+
+.main-image {
+  width: 460px;
+  height: 460px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 400px;
+}
+
+.product-info h2 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.product-info .price {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.product-info .description {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+.cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  align-items: stretch;
+}
+
+.cta-group .btn-primary,
+.cta-group .btn-outline {
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 24px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cta-group .btn-primary {
+  background: #4bb6ac;
+  color: #fff;
+  border: none;
+}
+
+.cta-group .btn-primary:hover {
+  background: #3ca397;
+}
+
+.cta-group .btn-outline {
+  background: #fff;
+  border: 2px solid #4bb6ac;
+  color: #4bb6ac;
+}
+
+.cta-group .btn-outline:hover {
+  background: #e7f8f6;
+}
+
+.seller {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #777;
+}
+
+@media (max-width: 768px) {
+  .product-detail {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .gallery {
+    align-self: center;
+  }
+  
+  .main-image {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+  }
+  
+  .product-info {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .cta-group {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .main-image {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .thumbnails {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .gallery {
+    flex-direction: column;
+    align-items: center;
+  }
+}

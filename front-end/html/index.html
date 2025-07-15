@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniMarket</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="sticky-header">
+    <div class="top-bar">
+      <div class="container">
+        <a class="logo" href="/html/index.html">MiniMarket</a>
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+            <line x1="16" y1="16" x2="22" y2="22" stroke="currentColor" stroke-width="2" />
+          </svg>
+          <input id="searchInput" type="text" placeholder="Search for items" autocomplete="off">
+        </div>
+        <div class="nav-auth">
+          <span id="navUser"></span>
+          <button id="loginBtn" class="btn">Sign up | Log in</button>
+          <button id="logoutBtn" class="btn hidden">Logout</button>
+        </div>
+      </div>
+    </div>
+    <nav class="nav-bar">
+      <ul>
+        <li><a href="/html/index.html">Browse</a></li>
+        <li><a id="sellBtn" class="btn-link">Sell</a></li>
+        <li id="messagesNavItem" class="hidden">
+          <a href="/html/messages.html" id="messagesLink">Messages 
+            <span id="unreadBadge" class="badge hidden">0</span>
+          </a>
+        </li>
+        <li><a href="/html/about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container">
+    <section class="hero">
+      <h1>Buy. Sell. Enjoy.</h1>
+    </section>
+
+    <section class="filters">
+      <button data-cat="all">All</button>
+      <button data-cat="clothing">Clothing</button>
+      <button data-cat="shoes">Shoes</button>
+      <button data-cat="accessories">Accessories</button>
+    </section>
+
+    <section id="productGrid" class="products"></section>
+  </div>
+
+  <div id="sellModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeSellModal" class="close">&times;</button>
+      <form id="sellForm" class="auth-form">
+        <input id="itemName" name="name" type="text" placeholder="Item name" required>
+        <input id="itemPrice" name="price" type="number" step="0.01" placeholder="Price €" required>
+        <select id="itemCategory" name="category" required>
+          <option value="clothing">Clothing</option>
+          <option value="shoes">Shoes</option>
+          <option value="accessories">Accessories</option>
+        </select>
+        <textarea id="itemDesc" name="description" rows="4" placeholder="Describe your item (size, condition…)"></textarea>
+        <input id="itemImages" name="images" type="file" accept="image/*" multiple>
+        <div id="thumbPreview" class="thumb-row"></div>
+        <button type="submit" class="btn-primary">Add Item</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="authModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeModal" class="close">&times;</button>
+      <div class="tabs">
+        <button id="showLogin" class="tab active">Login</button>
+        <button id="showSignup" class="tab">Sign up</button>
+      </div>
+      <form id="loginForm" class="auth-form">
+        <input id="loginEmail" type="email" placeholder="Email" required>
+        <input id="loginPassword" type="password" placeholder="Password" required>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+      <form id="signupForm" class="auth-form hidden">
+        <input id="signupName" type="text" placeholder="Username" required>
+        <input id="signupEmail" type="email" placeholder="Email" required>
+        <input id="signupPassword" type="password" placeholder="Password" required>
+        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="onTurnstileSuccess"></div>
+        <button type="submit" class="btn-primary">Create account</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 MiniMarket. All rights reserved.</p>
+  </footer>
+
+  <script type="module" src="/js/script.js"></script>
+</body>
+</html>

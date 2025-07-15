@@ -1,0 +1,389 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7f7;
+  color: #333;
+}
+
+.container {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.top-bar .container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.top-bar {
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  position: relative;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: #000;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1 1 auto;
+  max-width: 650px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  color: #777;
+  transform: translateY(-50%);
+  pointer-events: none;
+  margin-left: 3rem;
+}
+
+#searchInput {
+  margin-left: 3em;
+  width: 100%;
+  padding: 10px 14px 10px 44px;
+  border: 1px solid #d5d5d5;
+  border-radius: 24px;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+#searchInput::placeholder {
+  color: #9b9b9b;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: #4bb6ac;
+  box-shadow: 0 0 0 3px rgba(75, 182, 172, 0.25);
+}
+
+#searchInput:focus+.search-icon,
+#searchInput:not(:placeholder-shown)+.search-icon {
+  color: #4bb6ac;
+}
+
+.nav-auth {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+#navUser {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+}
+
+.nav-bar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.nav-bar li {
+  display: flex;
+}
+
+.nav-bar li.hidden {
+  display: none !important;
+}
+
+.nav-bar a {
+  text-decoration: none;
+  color: #333;
+  position: relative;
+}
+
+nav a {
+  text-decoration: none;
+  color: #333;
+}
+
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -12px;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+}
+
+.badge.hidden {
+  display: none !important;
+}
+
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+  background: #56cfc3;
+}
+
+.hero h1 {
+  margin-bottom: 20px;
+  font-size: 36px;
+}
+
+.hero input {
+  padding: 10px;
+  width: 300px;
+  max-width: 80%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 30px 0;
+}
+
+.filters button {
+  padding: 10px 16px;
+  background: #fff;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.filters button:hover {
+  background: #e0e0e0;
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 20px 40px;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.product-card:hover {
+  transform: scale(1.03);
+}
+
+.product-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.product-card .product-info {
+  padding: 10px;
+}
+
+.product-card .product-info h4 {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.product-card .product-info p {
+  color: #777;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+  background: #f0f0f0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#sellBtn:hover {
+  cursor: pointer;
+}
+
+#loginBtn:hover {
+  cursor: pointer;
+}
+
+.thumb-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.thumb-row img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  border-radius: var(--radius);
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+}
+
+.close {
+  position: absolute;
+  top: .75rem;
+  right: .75rem;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: .4rem .8rem;
+  border-bottom: 2px solid transparent;
+}
+
+.tab.active {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.auth-form input {
+  padding: .55rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+}
+
+.auth-form input:focus {
+  border-color: #4bb6ac;
+  box-shadow: 0 0 0 3px rgba(75, 182, 172, 0.25);
+  outline: none;
+}
+
+.nav-auth .btn {
+  padding: 0.55rem 1.2rem;
+  border: 1px solid #4bb6ac;
+  border-radius: 24px;
+  background: #4bb6ac;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.nav-auth .btn:hover,
+.nav-auth .btn:focus-visible {
+  background: #3ca397;
+  box-shadow: 0 2px 6px rgba(75, 182, 172, 0.35);
+}
+
+.nav-auth .btn.hidden {
+  display: none !important;
+}
+
+#logoutBtn {
+  background: #fff;
+  color: #4bb6ac;
+}
+
+#logoutBtn:hover,
+#logoutBtn:focus-visible {
+  background: #e8faf8;
+}
+
+.auth-form .btn-primary {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 24px;
+  background: #4bb6ac;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.auth-form .btn-primary:hover,
+.auth-form .btn-primary:focus-visible {
+  background: #3ca397;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  #searchInput {
+    margin-left: 0;
+  }
+}

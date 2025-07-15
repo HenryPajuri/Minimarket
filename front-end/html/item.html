@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Item • MiniMarket</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/item.css">
+</head>
+<body>
+  <header class="sticky-header">
+    <div class="top-bar">
+      <div class="container">
+        <a class="logo" href="/html/index.html">MiniMarket</a>
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+            <line x1="16" y1="16" x2="22" y2="22" stroke="currentColor" stroke-width="2" />
+          </svg>
+          <input id="searchInput" type="text" placeholder="Search for items" autocomplete="off">
+        </div>
+        <div class="nav-auth">
+          <span id="navUser"></span>
+          <button id="loginBtn" class="btn">Sign up | Log in</button>
+          <button id="logoutBtn" class="btn hidden">Logout</button>
+        </div>
+      </div>
+    </div>
+    <nav class="nav-bar">
+      <ul>
+        <li><a href="/html/index.html">Browse</a></li>
+        <li><a href="/html/index.html">Sell</a></li>
+        <li><a href="/html/messages.html">Messages <span id="unreadBadge" class="badge hidden">0</span></a></li>
+        <li><a href="/html/about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="container item-page">
+    <div class="product-detail">
+      <div class="gallery">
+        <div class="thumbnails" id="thumbsContainer"></div>
+        <img id="mainImage" class="main-image" src="" alt="Main">
+      </div>
+
+      <div class="product-info">
+        <h2 id="itemName"></h2>
+        <p id="itemPrice" class="price"></p>
+        <p id="itemDescription" class="description"></p>
+
+        <div class="cta-group">
+          <button id="buyBtn" class="btn-primary">Buy Now</button>
+          <button id="offerBtn" class="btn-outline">Make Offer</button>
+          <button id="msgBtn" class="btn-outline">Message Seller</button>
+        </div>
+
+        <p class="seller">Sold by <span id="sellerName"></span></p>
+      </div>
+    </div>
+
+    <div id="authModal" class="modal hidden">
+      <div class="modal-content">
+        <button id="closeModal" class="close">&times;</button>
+        <div class="tabs">
+          <button id="showLogin" class="tab active">Login</button>
+          <button id="showSignup" class="tab">Sign up</button>
+        </div>
+        <form id="loginForm" class="auth-form">
+          <input id="loginEmail" type="email" placeholder="Email" required>
+          <input id="loginPassword" type="password" placeholder="Password" required>
+          <button type="submit" class="btn-primary">Login</button>
+        </form>
+        <form id="signupForm" class="auth-form hidden">
+          <input id="signupName" type="text" placeholder="Username" required>
+          <input id="signupEmail" type="email" placeholder="Email" required>
+          <input id="signupPassword" type="password" placeholder="Password" required>
+          <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="onTurnstileSuccess"></div>
+          <button type="submit" class="btn-primary">Create account</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script type="module" src="/js/item.js"></script>
+  </div>
+</body>
+</html>
