@@ -25,6 +25,7 @@ if (process.env.NODE_ENV === "production") {
 
 
 
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -34,9 +35,8 @@ app.use(
         frameSrc: ["'self'", "https://challenges.cloudflare.com"],
         scriptSrc: [
           "'self'",
-          "https://challenges.cloudflare.com",
-          "'sha256-aKAwvWwisgzRhW5auVEe5FrNQ3wlLsxZvLvimiQ3+os='",
-          "'unsafe-inline'" // Keep this as backup
+          "https://challenges.cloudflare.com"
+          // No hash needed since we're using external scripts
         ],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:"],
