@@ -96,8 +96,9 @@
                 <input id="signupName" type="text" placeholder="Username" required>
                 <input id="signupEmail" type="email" placeholder="Email" required>
                 <input id="signupPassword" type="password" placeholder="Password" required>
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAABkfTVCE9npIwrA-" data-callback="onTurnstileSuccess"
-                    data-error-callback="onTurnstileError">
+                <div id="turnstile-widget" class="cf-turnstile" data-sitekey="0x4AAAAAABkfTVCE9npIwrA-"
+                    data-callback="onTurnstileSuccess" data-error-callback="onTurnstileError"
+                    data-expired-callback="onTurnstileExpired">
                 </div>
                 <button type="submit" class="btn-primary">Create account</button>
             </form>
