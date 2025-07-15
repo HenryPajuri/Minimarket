@@ -18,9 +18,32 @@ await connectDB();
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-app.use(helmet({ contentSecurityPolicy: false }));
+// Trust proxy for production (Render sits behind proxies)
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: false,          // we'll specify everything ourselves
+      directives: {
+        defaultSrc: ["'self'"],
+        frameSrc: ["'self'", "https://challenges.cloudflare.com"],
+        scriptSrc: [
+          "'self'",
+          "https://challenges.cloudflare.com",
+          "'unsafe-inline'"  // Temporarily allow all inline scripts
+        ],
+        styleSrc: ["'self'", "'unsafe-inline'"],   // Turnstile injects inline styles
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'", "https://challenges.cloudflare.com"],
+      },
+    },
+  })
+);
 app.use(cors({
-  origin: process.env.NODE_ENV === "production" 
+  origin: process.env.NODE_ENV === "production"
     ? "https://minimarket-f1r5.onrender.com"
     : "http://localhost:4000",
   credentials: true,
@@ -30,17 +53,21 @@ app.use(cookieParser());
 app.use(csrf({ cookie: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// API routes
 app.get("/api/csrf", (req, res) => res.json({ csrfToken: req.csrfToken() }));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/messages", messageRoutes);
 
+// Redirect root to main page
 app.get("/", (req, res) => {
   res.redirect("/html/index.html");
 });
 
+// Serve static files
 app.use(express.static(path.join(__dirname, "../front-end")));
 
+// Error handling
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ msg: "Server error" });
@@ -48,26 +75,3 @@ app.use((err, _req, res, _next) => {
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`✔ API ready on :${PORT}`));
-
-/*app.use(
-  helmet({
-    contentSecurityPolicy: {
-      useDefaults: false,          // we'll specify everything ourselves
-      directives: {
-        defaultSrc: ["'self'"],
-        frameSrc:   ["'self'", "https://challenges.cloudflare.com"],
-        scriptSrc:  [
-          "'self'",
-          // allow external JS file
-          "https://challenges.cloudflare.com",
-          // allow inline helpers *only* from Turnstile by SHA‑256 hash
-          //   (Replace xxx… with the hash Cloudflare prints in the console hint)
-          "'sha256-aKAwvWwisgzRhW5auVEe5FrNQ3wlLsxZvLvimiQ3+os='"
-        ],
-        styleSrc:  ["'self'", "'unsafe-inline'"],   // Turnstile injects inline styles
-        imgSrc:    ["'self'", "data:"],
-        connectSrc:["'self'", "https://challenges.cloudflare.com"],
-      },
-    },
-  })
-);*/
