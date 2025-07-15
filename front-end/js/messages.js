@@ -7,36 +7,17 @@ let currentProductId = null;
 let conversations = [];
 
 
-
-
-let latestToken = "";
-
-// Global callback (backup for explicit rendering)
-window.onTurnstileSuccess = function(token) {
-  console.log("✅ Global callback - Token received:", token);
-  latestToken = token;
-};
-
-// Enhanced token retrieval for signup
 function getTurnstileToken() {
-  // Try multiple ways to get the token
   let token = latestToken || window.latestToken || "";
-  
-  console.log("🔍 Getting Turnstile token:");
-  console.log("🔍 latestToken:", latestToken);
-  console.log("🔍 window.latestToken:", window.latestToken);
-  
-  // If we have the widget ID, try to get token directly
+
+
   if (!token && window.turnstileWidgetId && window.turnstile) {
     try {
       token = window.turnstile.getResponse(window.turnstileWidgetId);
-      console.log("🔍 Direct widget token:", token);
     } catch (e) {
-      console.log("🔍 Could not get direct token:", e);
     }
   }
-  
-  console.log("🔍 Final token:", token);
+
   return token;
 }
 
@@ -94,7 +75,7 @@ function formatTime(dateString) {
   const now = new Date();
   const diffTime = Math.abs(now - date);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays === 1) return "Today";
   if (diffDays === 2) return "Yesterday";
   if (diffDays < 7) return `${diffDays - 1} days ago`;
@@ -133,10 +114,10 @@ async function loadConversations() {
   }
 
   conversationsList.innerHTML = '<div class="loading">Loading conversations...</div>';
-  
+
   try {
     conversations = await getConversations();
-    
+
     if (conversations.length === 0) {
       conversationsList.innerHTML = `
         <div class="empty-state">
@@ -146,19 +127,19 @@ async function loadConversations() {
       `;
       return;
     }
-    
+
     conversationsList.innerHTML = "";
-    
+
     conversations.forEach(conv => {
       const item = document.createElement("div");
       item.className = `conversation-item ${conv.unreadCount > 0 ? "unread" : ""}`;
       item.dataset.userId = conv.otherUser.id;
-      
+
       const avatar = getAvatarLetter(conv.otherUser.name);
       const timeAgo = formatTime(conv.lastMessage.createdAt);
       const isFromMe = conv.lastMessage.sender === currentUser.id;
       const preview = isFromMe ? `You: ${conv.lastMessage.content}` : conv.lastMessage.content;
-      
+
       item.innerHTML = `
         <div class="conversation-avatar">${avatar}</div>
         <div class="conversation-info">
@@ -171,11 +152,11 @@ async function loadConversations() {
         </div>
         ${conv.product ? `<div class="conversation-product">${conv.product.name}</div>` : ""}
       `;
-      
+
       item.addEventListener("click", () => openChat(conv.otherUser.id, conv.otherUser.name, conv.product));
       conversationsList.appendChild(item);
     });
-    
+
   } catch (err) {
     console.error("Error loading conversations:", err);
     conversationsList.innerHTML = '<div class="loading">Error loading conversations</div>';
@@ -185,58 +166,58 @@ async function loadConversations() {
 async function openChat(userId, userName, product = null) {
   currentChatUserId = userId;
   currentProductId = product?.id || null;
-  
+
   document.querySelectorAll(".conversation-item").forEach(item => {
     item.classList.remove("active");
   });
   document.querySelector(`[data-user-id="${userId}"]`)?.classList.add("active");
-  
+
   chatInterface.classList.add("hidden");
   activeChat.classList.remove("hidden");
-  
+
   chatUserName.textContent = userName;
   chatAvatar.textContent = getAvatarLetter(userName);
-  
+
   if (product) {
     chatProductInfo.textContent = `About: ${product.name}`;
     chatProductInfo.classList.remove("hidden");
   } else {
     chatProductInfo.classList.add("hidden");
   }
-  
+
   await loadMessages(userId);
   messageInput.focus();
 }
 
 async function loadMessages(userId) {
   messagesList.innerHTML = '<div class="loading">Loading messages...</div>';
-  
+
   try {
     const { messages } = await getMessages(userId);
-    
+
     if (messages.length === 0) {
       messagesList.innerHTML = '<div class="empty-state">Start the conversation!</div>';
       return;
     }
-    
+
     messagesList.innerHTML = "";
-    
+
     messages.forEach(msg => {
       const item = document.createElement("div");
       item.className = `message-item ${msg.sender._id === currentUser.id ? "sent" : "received"}`;
-      
+
       const time = formatMessageTime(msg.createdAt);
-      
+
       item.innerHTML = `
         <div class="message-bubble">${msg.content}</div>
         <div class="message-time">${time}</div>
       `;
-      
+
       messagesList.appendChild(item);
     });
-    
+
     messagesList.scrollTop = messagesList.scrollHeight;
-    
+
   } catch (err) {
     console.error("Error loading messages:", err);
     messagesList.innerHTML = '<div class="loading">Error loading messages</div>';
@@ -250,21 +231,21 @@ async function sendNewMessage(content, recipientId, productId = null) {
       content,
       productId
     });
-    
+
     const item = document.createElement("div");
     item.className = "message-item sent";
     const time = formatMessageTime(new Date());
-    
+
     item.innerHTML = `
       <div class="message-bubble">${content}</div>
       <div class="message-time">${time}</div>
     `;
-    
+
     messagesList.appendChild(item);
     messagesList.scrollTop = messagesList.scrollHeight;
-    
+
     await loadConversations();
-    
+
     return message;
   } catch (err) {
     console.error("Error sending message:", err);
@@ -293,7 +274,7 @@ function checkUrlParameters() {
   const urlParams = new URLSearchParams(window.location.search);
   const messageUserId = urlParams.get('message');
   const productId = urlParams.get('product');
-  
+
   if (messageUserId && isLoggedIn) {
     currentChatUserId = messageUserId;
     currentProductId = productId;
@@ -308,11 +289,11 @@ refreshBtn.addEventListener("click", loadConversations);
 logoutBtn.addEventListener("click", async (e) => {
   e.preventDefault();
   e.stopPropagation();
-  
+
   logoutBtn.disabled = true;
   const originalText = logoutBtn.textContent;
   logoutBtn.textContent = "Logging out...";
-  
+
   try {
     await logout();
     isLoggedIn = false;
@@ -320,11 +301,11 @@ logoutBtn.addEventListener("click", async (e) => {
     currentChatUserId = null;
     currentProductId = null;
     showLoggedOutUI();
-    
+
     setTimeout(() => {
       window.location.href = "/html/index.html";
     }, 100);
-    
+
   } catch (err) {
     console.error("Logout error:", err);
     logoutBtn.disabled = false;
@@ -340,7 +321,7 @@ closeChatBtn.addEventListener("click", () => {
   chatInterface.classList.remove("hidden");
   currentChatUserId = null;
   currentProductId = null;
-  
+
   document.querySelectorAll(".conversation-item").forEach(item => {
     item.classList.remove("active");
   });
@@ -348,14 +329,14 @@ closeChatBtn.addEventListener("click", () => {
 
 messageForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
+
   const content = messageInput.value.trim();
   if (!content || !currentChatUserId) return;
-  
+
   const sendBtn = messageForm.querySelector(".send-btn");
   sendBtn.disabled = true;
   messageInput.value = "";
-  
+
   try {
     await sendNewMessage(content, currentChatUserId, currentProductId);
     updateUnreadCount();
@@ -382,7 +363,7 @@ loginForm.addEventListener("submit", async (e) => {
     email: loginForm.loginEmail.value.trim().toLowerCase(),
     password: loginForm.loginPassword.value,
   };
-  
+
   try {
     const res = await login(body);
     if (res.user) {
@@ -407,7 +388,7 @@ signupForm.addEventListener("submit", async (e) => {
     password: signupForm.signupPassword.value,
     captchaToken: getTurnstileToken(),
   };
-  
+
   try {
     const res = await signup(body);
     if (res.user) {
@@ -432,25 +413,25 @@ closeStartConversationModal.addEventListener("click", () => {
 
 startConversationForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
+
   const content = initialMessage.value.trim();
   if (!content || !currentChatUserId) return;
-  
+
   const submitBtn = startConversationForm.querySelector(".btn-primary");
   submitBtn.disabled = true;
-  
+
   try {
     await sendNewMessage(content, currentChatUserId, currentProductId);
     startConversationModal.classList.add("hidden");
     initialMessage.value = "";
-    
+
     await loadConversations();
-    
+
     const conv = conversations.find(c => c.otherUser.id === currentChatUserId);
     if (conv) {
       await openChat(conv.otherUser.id, conv.otherUser.name, conv.product);
     }
-    
+
   } catch (err) {
     alert("Error sending message");
   } finally {
@@ -463,7 +444,7 @@ window.startConversation = (sellerId, sellerName, productId) => {
     openAuthModal("login");
     return;
   }
-  
+
   currentChatUserId = sellerId;
   currentProductId = productId;
   chatUserName.textContent = sellerName;
@@ -489,7 +470,7 @@ window.startConversation = (sellerId, sellerName, productId) => {
 setInterval(async () => {
   if (isLoggedIn) {
     await updateUnreadCount();
-    
+
     if (!activeChat.classList.contains("hidden")) {
       if (currentChatUserId) {
         await loadMessages(currentChatUserId);
@@ -504,7 +485,7 @@ setInterval(async () => {
 function updateButtonTextForMobile() {
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
-  
+
   if (window.innerWidth <= 768) {
     if (loginBtn && !loginBtn.classList.contains("hidden")) {
       loginBtn.textContent = "Login";
@@ -529,15 +510,15 @@ const originalShowLoggedInUI = showLoggedInUI;
 const originalShowLoggedOutUI = showLoggedOutUI;
 
 if (typeof showLoggedInUI === 'function') {
-  showLoggedInUI = function(user) {
+  showLoggedInUI = function (user) {
     originalShowLoggedInUI(user);
-    setTimeout(updateButtonTextForMobile, 10); 
+    setTimeout(updateButtonTextForMobile, 10);
   };
 }
 
 if (typeof showLoggedOutUI === 'function') {
-  showLoggedOutUI = function() {
+  showLoggedOutUI = function () {
     originalShowLoggedOutUI();
-    setTimeout(updateButtonTextForMobile, 10); 
+    setTimeout(updateButtonTextForMobile, 10);
   };
 }

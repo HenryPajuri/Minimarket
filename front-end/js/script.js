@@ -8,32 +8,23 @@ let allProducts = [];
 
 let latestToken = "";
 
-// Global callback (backup for explicit rendering)
+
 window.onTurnstileSuccess = function(token) {
-  console.log("✅ Global callback - Token received:", token);
   latestToken = token;
 };
 
-// Enhanced token retrieval for signup
+
 function getTurnstileToken() {
-  // Try multiple ways to get the token
   let token = latestToken || window.latestToken || "";
   
-  console.log("🔍 Getting Turnstile token:");
-  console.log("🔍 latestToken:", latestToken);
-  console.log("🔍 window.latestToken:", window.latestToken);
-  
-  // If we have the widget ID, try to get token directly
+
   if (!token && window.turnstileWidgetId && window.turnstile) {
     try {
       token = window.turnstile.getResponse(window.turnstileWidgetId);
-      console.log("🔍 Direct widget token:", token);
     } catch (e) {
-      console.log("🔍 Could not get direct token:", e);
     }
   }
   
-  console.log("🔍 Final token:", token);
   return token;
 }
 

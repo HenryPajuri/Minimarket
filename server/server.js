@@ -18,13 +18,10 @@ await connectDB();
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Trust proxy for production (Render sits behind proxies)
+
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
-
-
-
 
 app.use(
   helmet({
@@ -36,17 +33,21 @@ app.use(
         scriptSrc: [
           "'self'",
           "https://challenges.cloudflare.com"
-          // No hash needed since we're using external scripts
         ],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:"],
+        styleSrc: ["'self'", "'unsafe-inline'"], // Turnstile needs inline styles
+        imgSrc: ["'self'", "data:", "https:"],
         connectSrc: ["'self'", "https://challenges.cloudflare.com"],
+        fontSrc: ["'self'", "data:"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        formAction: ["'self'"]
       },
     },
   })
 );
+
 app.use(cors({
-  origin: process.env.NODE_ENV === "production"
+  origin: process.env.NODE_ENV === "production" 
     ? "https://minimarket-f1r5.onrender.com"
     : "http://localhost:4000",
   credentials: true,
@@ -56,21 +57,18 @@ app.use(cookieParser());
 app.use(csrf({ cookie: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// API routes
+
 app.get("/api/csrf", (req, res) => res.json({ csrfToken: req.csrfToken() }));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/messages", messageRoutes);
 
-// Redirect root to main page
 app.get("/", (req, res) => {
   res.redirect("/html/index.html");
 });
 
-// Serve static files
 app.use(express.static(path.join(__dirname, "../front-end")));
 
-// Error handling
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ msg: "Server error" });
