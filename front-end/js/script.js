@@ -274,3 +274,46 @@ if (messagesLink) {
 })();
 
 setInterval(updateUnreadCount, 30000);
+
+
+function updateButtonTextForMobile() {
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  
+  if (window.innerWidth <= 768) {
+    if (loginBtn && !loginBtn.classList.contains("hidden")) {
+      loginBtn.textContent = "Login";
+    }
+    if (logoutBtn && !logoutBtn.classList.contains("hidden")) {
+      logoutBtn.textContent = "Logout";
+    }
+  } else {
+    if (loginBtn && !loginBtn.classList.contains("hidden")) {
+      loginBtn.textContent = "Sign up | Log in";
+    }
+    if (logoutBtn && !logoutBtn.classList.contains("hidden")) {
+      logoutBtn.textContent = "Logout";
+    }
+  }
+}
+
+
+window.addEventListener('resize', updateButtonTextForMobile);
+window.addEventListener('load', updateButtonTextForMobile);
+
+const originalShowLoggedInUI = showLoggedInUI;
+const originalShowLoggedOutUI = showLoggedOutUI;
+
+if (typeof showLoggedInUI === 'function') {
+  showLoggedInUI = function(user) {
+    originalShowLoggedInUI(user);
+    setTimeout(updateButtonTextForMobile, 10);
+  };
+}
+
+if (typeof showLoggedOutUI === 'function') {
+  showLoggedOutUI = function() {
+    originalShowLoggedOutUI();
+    setTimeout(updateButtonTextForMobile, 10);
+  };
+}
