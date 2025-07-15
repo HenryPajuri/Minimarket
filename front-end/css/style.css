@@ -387,3 +387,66 @@ footer {
     margin-left: 0;
   }
 }
+
+
+@media (max-width: 768px) {
+  #searchInput {
+    margin-left: 0;
+  }
+  
+  .search-icon {
+    margin-left: 0 !important;
+    left: 14px;
+  }
+
+  .top-bar .container {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .search-wrapper {
+    order: 3;
+    width: 100%;
+    margin-top: 0.5rem;
+    max-width: none;
+  }
+  
+  .nav-auth {
+    margin-left: 0;
+  }
+  
+  .nav-auth .btn {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.8rem;
+    border-radius: 20px;
+  }
+  
+  .nav-auth .btn {
+    font-size: 0; 
+  }
+  
+  .nav-auth .btn::before {
+    content: "Login";
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-auth .btn {
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .nav-auth .btn::before {
+    font-size: 0.75rem;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+  
+  .top-bar .container {
+    padding: 0.5rem;
+  }
+}
