@@ -210,7 +210,7 @@ signupForm.addEventListener("submit", async (e) => {
     name: signupForm.signupName.value.trim(),
     email: signupForm.signupEmail.value.trim().toLowerCase(),
     password: signupForm.signupPassword.value,
-    captchaToken: latestToken,
+    captchaToken: getTurnstileToken(),
   };
   const res = await signup(body);
   if (res.user) {

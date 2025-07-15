@@ -271,7 +271,7 @@ if (signupForm) {
       name: signupForm.signupName.value.trim(),
       email: signupForm.signupEmail.value.trim().toLowerCase(),
       password: signupForm.signupPassword.value,
-      captchaToken: latestToken,
+      captchaToken: getTurnstileToken(),
     };
     
     try {
