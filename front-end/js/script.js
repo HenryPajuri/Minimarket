@@ -3,11 +3,44 @@ import { signup, login, logout, me, getUnreadCount } from "../utils/api.js";
 let isLoggedIn = false;
 let currentUser = null;
 let allProducts = [];
+
 let latestToken = "";
 
+// Enhanced debugging version
 window.onTurnstileSuccess = (token) => {
+  console.log("✅ Turnstile callback triggered!");
+  console.log("✅ Token received:", token);
   latestToken = token;
+  console.log("✅ Token stored in latestToken:", latestToken);
+  
+  // Also store in a global backup
+  window.turnstileToken = token;
+  console.log("✅ Token stored in window.turnstileToken:", window.turnstileToken);
 };
+
+// Add error callback too
+window.onTurnstileError = (error) => {
+  console.error("❌ Turnstile error:", error);
+};
+
+// Debug function to check token before signup
+function debugCaptchaToken() {
+  console.log("🔍 Debugging captcha token:");
+  console.log("🔍 latestToken:", latestToken);
+  console.log("🔍 window.turnstileToken:", window.turnstileToken);
+  console.log("🔍 Turnstile widget exists:", !!document.querySelector('.cf-turnstile'));
+  
+  // Try to get token directly from Turnstile widget
+  try {
+    const widgets = document.querySelectorAll('.cf-turnstile');
+    widgets.forEach((widget, index) => {
+      console.log(`🔍 Widget ${index}:`, widget);
+      console.log(`🔍 Widget ${index} innerHTML:`, widget.innerHTML);
+    });
+  } catch (e) {
+    console.error("🔍 Error checking widgets:", e);
+  }
+}
 
 const productGrid = document.getElementById("productGrid");
 const loginBtn = document.getElementById("loginBtn");
