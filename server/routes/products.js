@@ -3,7 +3,11 @@ import Product from "../models/Product.js";
 import { requireAuth } from "../middleware/auth.js";
 import multer from "multer";
 import { body, validationResult } from "express-validator";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
 
 router.get("/", async (_req, res, next) => {
@@ -58,11 +62,52 @@ router.post("/", requireAuth, upload.array("images", 3), [
   }
 });
 
+
+router.get("/my-items", requireAuth, async (req, res, next) => {
+  try {
+    const items = await Product.find({ owner: req.auth.sub })
+      .sort("-createdAt")
+      .populate("owner", "name");
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get("/:id", async (req, res, next) => {
   try {
     const item = await Product.findById(req.params.id).populate("owner", "name");
     if (!item) return res.status(404).json({ msg: "Item not found" });
     res.json(item);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete("/:id", requireAuth, async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({ msg: "Product not found" });
+    }
+    
+    if (product.owner.toString() !== req.auth.sub) {
+      return res.status(403).json({ msg: "Not authorized to delete this product" });
+    }
+    
+    if (product.images && product.images.length > 0) {
+      product.images.forEach(imagePath => {
+        const fullPath = path.join(__dirname, "../", imagePath.replace(/^\//, ""));
+        fs.unlink(fullPath, (err) => {
+          if (err) console.log("Could not delete image file:", fullPath);
+        });
+      });
+    }
+    
+    await Product.findByIdAndDelete(req.params.id);
+    
+    res.json({ msg: "Product deleted successfully" });
   } catch (err) {
     next(err);
   }

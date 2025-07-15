@@ -14,19 +14,23 @@ async function getCsrfToken() {
 async function request(path, method = "GET", data) {
   const opts = { method, credentials: "include", headers: {} };
 
+
+  if (method !== "GET") {
+    opts.headers["X-CSRF-Token"] = await getCsrfToken();
+  }
+
   if (data !== undefined) {
     opts.headers["Content-Type"] = "application/json";
-    opts.headers["X-CSRF-Token"] = await getCsrfToken();
     opts.body = JSON.stringify(data);
   }
 
   const response = await fetch(`${BASE}${path}`, opts);
-
+  
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ msg: "Request failed" }));
     throw new Error(errorData.msg || `HTTP ${response.status}`);
   }
-
+  
   return response.status === 204 ? null : response.json();
 }
 
@@ -46,6 +50,8 @@ export const me = () => request("/auth/me");
 
 export const listProducts = () => request("/products");
 export const createProduct = product => request("/products", "POST", product);
+export const getMyItems = () => request("/products/my-items");
+export const deleteProduct = id => request(`/products/${id}`, "DELETE");
 
 export const getConversations = () => request("/messages");
 export const getMessages = userId => request(`/messages/${userId}`);

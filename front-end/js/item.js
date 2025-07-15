@@ -1,23 +1,54 @@
-import { signup, login, logout, me, getUnreadCount } from "../utils/api.js";
+import { signup, login, logout, me, getUnreadCount, deleteProduct } from "../utils/api.js";
 
 let isLoggedIn = false;
 let currentUser = null;
 let currentItem = null;
+let latestToken = "";
 
+function highlightCurrentPage() {
+  document.querySelectorAll('.nav-bar a').forEach(link => {
+    link.classList.remove('active');
+  });
+
+  const currentPath = window.location.pathname;
+  
+  const navMap = {
+    '/html/index.html': 'a[href="/html/index.html"]',
+    '/': 'a[href="/html/index.html"]', 
+    '/html/messages.html': 'a[href="/html/messages.html"]',
+    '/html/useritems.html': 'a[href="/html/useritems.html"]', 
+    '/html/about.html': 'a[href="/html/about.html"]',
+    '/html/item.html': 'a[href="/html/index.html"]'
+  };
+
+  const selector = navMap[currentPath];
+  if (selector) {
+    const activeLink = document.querySelector(selector);
+    if (activeLink) {
+      activeLink.classList.add('active');
+    }
+  }
+}
+
+
+window.onTurnstileSuccess = function(token) {
+  latestToken = token;
+};
 
 function getTurnstileToken() {
   let token = latestToken || window.latestToken || "";
   
-
   if (!token && window.turnstileWidgetId && window.turnstile) {
     try {
       token = window.turnstile.getResponse(window.turnstileWidgetId);
     } catch (e) {
+   
     }
   }
   
   return token;
 }
+
 
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -30,17 +61,23 @@ const showLoginTab = document.getElementById("showLogin");
 const showSignupTab = document.getElementById("showSignup");
 const closeModalBtn = document.getElementById("closeModal");
 
+
+const deleteModal = document.getElementById("deleteModal");
+const deleteBtn = document.getElementById("deleteBtn");
+const closeDeleteModal = document.getElementById("closeDeleteModal");
+const confirmDelete = document.getElementById("confirmDelete");
+const cancelDelete = document.getElementById("cancelDelete");
+
 function showLoggedInUI(user) {
+  const myItemsNavItem = document.getElementById("myItemsNavItem");
   isLoggedIn = true;
   currentUser = user;
   navUser.textContent = `Hi, ${user.name || "User"}`;
   loginBtn.classList.add("hidden");
   logoutBtn.classList.remove("hidden");
+  if (messagesNavItem) messagesNavItem.classList.remove("hidden");
+  if (myItemsNavItem) myItemsNavItem.classList.remove("hidden");
   updateUnreadCount();
-  
-  if (currentItem) {
-    updateMessageButtonState();
-  }
 }
 
 function showLoggedOutUI() {
@@ -49,29 +86,41 @@ function showLoggedOutUI() {
   navUser.textContent = "";
   loginBtn.classList.remove("hidden");
   logoutBtn.classList.add("hidden");
+  if (messagesNavItem) messagesNavItem.classList.add("hidden");
+  if (myItemsNavItem) myItemsNavItem.classList.add("hidden");
   unreadBadge.classList.add("hidden");
-  
+
   if (currentItem) {
-    updateMessageButtonState();
+    updateButtonStates();
   }
 }
 
-function updateMessageButtonState() {
+function updateButtonStates() {
   const msgBtn = document.getElementById("msgBtn");
+  const deleteBtn = document.getElementById("deleteBtn");
+  
   if (!msgBtn || !currentItem) return;
   
   const isOwnItem = currentUser && currentUser.id === currentItem.owner?._id;
   
   if (isOwnItem) {
+  
     msgBtn.textContent = "Your Item";
     msgBtn.disabled = true;
     msgBtn.style.opacity = "0.5";
     msgBtn.style.cursor = "not-allowed";
+    
+
+    deleteBtn.classList.remove("hidden");
   } else {
+
     msgBtn.textContent = "Message Seller";
     msgBtn.disabled = false;
     msgBtn.style.opacity = "1";
     msgBtn.style.cursor = "pointer";
+    
+
+    deleteBtn.classList.add("hidden");
   }
 }
 
@@ -123,7 +172,7 @@ async function loadProduct() {
     
     currentItem = await res.json();
     displayProduct(currentItem);
-    updateMessageButtonState();
+    updateButtonStates();
     
   } catch (err) {
     console.error("Error loading product:", err);
@@ -185,6 +234,35 @@ function displayProduct(item) {
     const messagesUrl = `/html/messages.html?message=${item.owner._id}&product=${item._id}`;
     window.location.href = messagesUrl;
   };
+}
+
+
+function openDeleteModal() {
+  deleteModal.classList.remove("hidden");
+}
+
+function closeDeleteModalFn() {
+  deleteModal.classList.add("hidden");
+}
+
+async function handleDeleteProduct() {
+  if (!currentItem || !currentItem._id) return;
+  
+  const deleteBtn = document.getElementById("confirmDelete");
+  const originalText = deleteBtn.textContent;
+  deleteBtn.textContent = "Deleting...";
+  deleteBtn.disabled = true;
+  
+  try {
+    await deleteProduct(currentItem._id);
+    alert("Item deleted successfully!");
+    
+    window.location.href = "/html/index.html";
+  } catch (err) {
+    alert("Error deleting item: " + err.message);
+    deleteBtn.textContent = originalText;
+    deleteBtn.disabled = false;
+  }
 }
 
 if (loginBtn) {
@@ -272,6 +350,28 @@ if (signupForm) {
   });
 }
 
+if (deleteBtn) {
+  deleteBtn.addEventListener("click", openDeleteModal);
+}
+
+if (closeDeleteModal) {
+  closeDeleteModal.addEventListener("click", closeDeleteModalFn);
+}
+
+if (cancelDelete) {
+  cancelDelete.addEventListener("click", closeDeleteModalFn);
+}
+
+if (confirmDelete) {
+  confirmDelete.addEventListener("click", handleDeleteProduct);
+}
+
+if (deleteModal) {
+  deleteModal.addEventListener("click", (e) => {
+    if (e.target === deleteModal) closeDeleteModalFn();
+  });
+}
+
 (async () => {
   try {
     const user = await me();
@@ -286,48 +386,5 @@ if (signupForm) {
   
   await loadProduct();
 })();
-
+ setTimeout(highlightCurrentPage, 10);
 setInterval(updateUnreadCount, 30000);
-
-
-function updateButtonTextForMobile() {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  
-  if (window.innerWidth <= 768) {
-    if (loginBtn && !loginBtn.classList.contains("hidden")) {
-      loginBtn.textContent = "Login";
-    }
-    if (logoutBtn && !logoutBtn.classList.contains("hidden")) {
-      logoutBtn.textContent = "Logout";
-    }
-  } else {
-    if (loginBtn && !loginBtn.classList.contains("hidden")) {
-      loginBtn.textContent = "Sign up | Log in";
-    }
-    if (logoutBtn && !logoutBtn.classList.contains("hidden")) {
-      logoutBtn.textContent = "Logout";
-    }
-  }
-}
-
-
-window.addEventListener('resize', updateButtonTextForMobile);
-window.addEventListener('load', updateButtonTextForMobile);
-
-const originalShowLoggedInUI = showLoggedInUI;
-const originalShowLoggedOutUI = showLoggedOutUI;
-
-if (typeof showLoggedInUI === 'function') {
-  showLoggedInUI = function(user) {
-    originalShowLoggedInUI(user);
-    setTimeout(updateButtonTextForMobile, 10); 
-  };
-}
-
-if (typeof showLoggedOutUI === 'function') {
-  showLoggedOutUI = function() {
-    originalShowLoggedOutUI();
-    setTimeout(updateButtonTextForMobile, 10); 
-  };
-}

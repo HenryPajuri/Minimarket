@@ -3,6 +3,30 @@ import { signup, login, logout, me, getUnreadCount } from "../utils/api.js";
 let isLoggedIn = false;
 let currentUser = null;
 
+function highlightCurrentPage() {
+  document.querySelectorAll('.nav-bar a').forEach(link => {
+    link.classList.remove('active');
+  });
+
+  const currentPath = window.location.pathname;
+  
+  const navMap = {
+    '/html/index.html': 'a[href="/html/index.html"]',
+    '/': 'a[href="/html/index.html"]', 
+    '/html/messages.html': 'a[href="/html/messages.html"]',
+    '/html/useritems.html': 'a[href="/html/useritems.html"]', 
+    '/html/about.html': 'a[href="/html/about.html"]',
+    '/html/item.html': 'a[href="/html/index.html"]' 
+  };
+
+  const selector = navMap[currentPath];
+  if (selector) {
+    const activeLink = document.querySelector(selector);
+    if (activeLink) {
+      activeLink.classList.add('active');
+    }
+  }
+}
 
 function getTurnstileToken() {
   let token = latestToken || window.latestToken || "";
@@ -35,12 +59,14 @@ const closeModalBtn = document.getElementById("closeModal");
 const signupLink = document.getElementById("signupLink");
 
 function showLoggedInUI(user) {
+  const myItemsNavItem = document.getElementById("myItemsNavItem");
   isLoggedIn = true;
   currentUser = user;
   navUser.textContent = `Hi, ${user.name || "User"}`;
   loginBtn.classList.add("hidden");
   logoutBtn.classList.remove("hidden");
   if (messagesNavItem) messagesNavItem.classList.remove("hidden");
+  if (myItemsNavItem) myItemsNavItem.classList.remove("hidden");
   updateUnreadCount();
 }
 
@@ -51,6 +77,7 @@ function showLoggedOutUI() {
   loginBtn.classList.remove("hidden");
   logoutBtn.classList.add("hidden");
   if (messagesNavItem) messagesNavItem.classList.add("hidden");
+  if (myItemsNavItem) myItemsNavItem.classList.add("hidden");
   unreadBadge.classList.add("hidden");
 }
 
@@ -215,6 +242,9 @@ if (signupLink) {
   } catch (err) {
     showLoggedOutUI();
   }
+  
+
+  setTimeout(highlightCurrentPage, 10);
 })();
 
 setInterval(updateUnreadCount, 30000);

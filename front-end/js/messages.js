@@ -6,6 +6,31 @@ let currentChatUserId = null;
 let currentProductId = null;
 let conversations = [];
 
+function highlightCurrentPage() {
+  document.querySelectorAll('.nav-bar a').forEach(link => {
+    link.classList.remove('active');
+  });
+
+  const currentPath = window.location.pathname;
+  
+  const navMap = {
+    '/html/index.html': 'a[href="/html/index.html"]',
+    '/': 'a[href="/html/index.html"]', 
+    '/html/messages.html': 'a[href="/html/messages.html"]',
+    '/html/useritems.html': 'a[href="/html/useritems.html"]', 
+    '/html/about.html': 'a[href="/html/about.html"]',
+    '/html/item.html': 'a[href="/html/index.html"]' 
+  };
+
+  const selector = navMap[currentPath];
+  if (selector) {
+    const activeLink = document.querySelector(selector);
+    if (activeLink) {
+      activeLink.classList.add('active');
+    }
+  }
+}
+
 
 function getTurnstileToken() {
   let token = latestToken || window.latestToken || "";
@@ -25,6 +50,7 @@ function getTurnstileToken() {
 const navUser = document.getElementById("navUser");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const sellBtn = document.getElementById("sellBtn");
 const unreadCount = document.getElementById("unreadCount");
 const refreshBtn = document.getElementById("refreshBtn");
 const conversationsList = document.getElementById("conversationsList");
@@ -49,11 +75,14 @@ const startConversationForm = document.getElementById("startConversationForm");
 const initialMessage = document.getElementById("initialMessage");
 
 function showLoggedInUI(user) {
+  const myItemsNavItem = document.getElementById("myItemsNavItem");
   isLoggedIn = true;
   currentUser = user;
   navUser.textContent = `Hi, ${user.name || "User"}`;
   loginBtn.classList.add("hidden");
   logoutBtn.classList.remove("hidden");
+  if (messagesNavItem) messagesNavItem.classList.remove("hidden");
+  if (myItemsNavItem) myItemsNavItem.classList.remove("hidden");
   updateUnreadCount();
 }
 
@@ -63,7 +92,9 @@ function showLoggedOutUI() {
   navUser.textContent = "";
   loginBtn.classList.remove("hidden");
   logoutBtn.classList.add("hidden");
-  unreadCount.classList.add("hidden");
+  if (messagesNavItem) messagesNavItem.classList.add("hidden");
+  if (myItemsNavItem) myItemsNavItem.classList.add("hidden");
+  unreadBadge.classList.add("hidden");
 }
 
 function getAvatarLetter(name) {
@@ -286,6 +317,17 @@ function checkUrlParameters() {
 loginBtn.addEventListener("click", () => openAuthModal("login"));
 refreshBtn.addEventListener("click", loadConversations);
 
+if (sellBtn) {
+  sellBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (isLoggedIn) {
+      window.location.href = "/html/index.html?sell=true";
+    } else {
+      openAuthModal("login");
+    }
+  });
+}
+
 logoutBtn.addEventListener("click", async (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -404,6 +446,7 @@ signupForm.addEventListener("submit", async (e) => {
     alert("Signup failed. Please try again.");
   }
 });
+ setTimeout(highlightCurrentPage, 10);
 
 closeStartConversationModal.addEventListener("click", () => {
   startConversationModal.classList.add("hidden");

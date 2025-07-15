@@ -130,6 +130,11 @@ body {
   position: relative;
 }
 
+.nav-bar a.active {
+  color: #4bb6ac;
+  font-weight: 600;
+}
+
 nav a {
   text-decoration: none;
   color: #333;

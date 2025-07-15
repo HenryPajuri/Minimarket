@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us • MiniMarket</title>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <title>My Items • MiniMarket</title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/about.css">
+    <link rel="stylesheet" href="/css/useritems.css">
 </head>
 
 <body>
@@ -36,48 +35,61 @@
                 <li id="messagesNavItem" class="hidden"><a href="/html/messages.html" id="messagesLink">Messages <span
                             id="unreadBadge" class="badge hidden">0</span></a></li>
                 <li id="myItemsNavItem" class="hidden"><a href="/html/useritems.html">My Items</a></li>
-                <li><a href="/html/about.html">About</a></li>
+                <li><a href="/html/about.html" class="active">About</a></li>
             </ul>
         </nav>
     </header>
 
     <div class="container">
-        <div class="about-content">
-            <h1>About MiniMarket</h1>
-            <p>Welcome to MiniMarket, your go-to platform for buying and selling second-hand items!</p>
-
-            <h2>Our Mission</h2>
-            <p>We believe in giving items a second life and creating a sustainable marketplace where people can easily
-                buy and sell pre-loved goods.</p>
-
-            <h2>How It Works</h2>
-            <div class="steps">
-                <div class="step">
-                    <h3>1. Browse</h3>
-                    <p>Explore our wide selection of clothing, shoes, and accessories.</p>
-                </div>
-                <div class="step">
-                    <h3>2. Message</h3>
-                    <p>Contact sellers directly through our messaging system.</p>
-                </div>
-                <div class="step">
-                    <h3>3. Buy & Sell</h3>
-                    <p>Complete transactions and list your own items for sale.</p>
-                </div>
+        <div class="user-items-container">
+            <div class="user-items-header">
+                <h1>My Items</h1>
+                <button id="addItemBtn" class="btn-primary">Add New Item</button>
             </div>
 
-            <h2>Why Choose MiniMarket?</h2>
-            <ul>
-                <li>Safe and secure messaging system</li>
-                <li>Easy-to-use interface</li>
-                <li>Wide variety of items</li>
-                <li>Sustainable shopping solution</li>
-                <li>Community-driven marketplace</li>
-            </ul>
+            <div id="itemsGrid" class="user-items-grid">
+                <div class="loading">Loading your items...</div>
+            </div>
+        </div>
+    </div>
 
-            <h2>Get Started</h2>
-            <p>Ready to start buying and selling? <a href="/html/index.html">Browse our items</a> or <a href="#"
-                    id="signupLink">create an account</a> to get started!</p>
+    <div id="deleteModal" class="modal hidden">
+        <div class="modal-content">
+            <button id="closeDeleteModal" class="close">&times;</button>
+            <h3>Delete Item</h3>
+            <div id="deleteItemInfo" class="delete-item-preview">
+                <img id="deleteItemImage" src="" alt="Item">
+                <div>
+                    <h4 id="deleteItemName"></h4>
+                    <p id="deleteItemPrice"></p>
+                </div>
+            </div>
+            <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+                <button id="cancelDelete" class="btn-outline">Cancel</button>
+                <button id="confirmDelete" class="btn-primary"
+                    style="background: #ff4444; border-color: #ff4444;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sellModal" class="modal hidden">
+        <div class="modal-content">
+            <button id="closeSellModal" class="close">&times;</button>
+            <form id="sellForm" class="auth-form">
+                <input id="itemName" name="name" type="text" placeholder="Item name" required>
+                <input id="itemPrice" name="price" type="number" step="0.01" placeholder="Price €" required>
+                <select id="itemCategory" name="category" required>
+                    <option value="clothing">Clothing</option>
+                    <option value="shoes">Shoes</option>
+                    <option value="accessories">Accessories</option>
+                </select>
+                <textarea id="itemDesc" name="description" rows="4"
+                    placeholder="Describe your item (size, condition…)"></textarea>
+                <input id="itemImages" name="images" type="file" accept="image/*" multiple>
+                <div id="thumbPreview" class="thumb-row"></div>
+                <button type="submit" class="btn-primary">Add Item</button>
+            </form>
         </div>
     </div>
 
@@ -106,9 +118,10 @@
     <footer>
         <p>© 2025 MiniMarket. All rights reserved.</p>
     </footer>
+
     <script src="/js/turnstile.js"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" defer></script>
-    <script type="module" src="/js/about.js"></script>
+    <script type="module" src="/js/useritems.js"></script>
 </body>
 
 </html>

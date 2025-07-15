@@ -95,11 +95,6 @@
   margin: 0;
 }
 
-.nav-bar a.active {
-  color: #4bb6ac;
-  font-weight: 600;
-}
-
 @media (max-width: 768px) {
   .about-content {
     padding: 2rem 1rem;

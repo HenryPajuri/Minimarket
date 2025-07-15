@@ -5,18 +5,38 @@ let currentUser = null;
 let allProducts = [];
 
 
+function highlightCurrentPage() {
+  document.querySelectorAll('.nav-bar a').forEach(link => {
+    link.classList.remove('active');
+  });
 
+  const currentPath = window.location.pathname;
+  
+  const navMap = {
+    '/html/index.html': '.nav-bar a[href="/html/index.html"]',
+    '/': '.nav-bar a[href="/html/index.html"]',
+    '/html/messages.html': '.nav-bar a[href="/html/messages.html"]',
+    '/html/useritems.html': '.nav-bar a[href="/html/useritems.html"]', 
+    '/html/about.html': '.nav-bar a[href="/html/about.html"]',
+    '/html/item.html': '.nav-bar a[href="/html/index.html"]'
+  };
+
+  const selector = navMap[currentPath];
+  if (selector) {
+    const activeLink = document.querySelector(selector);
+    if (activeLink) {
+      activeLink.classList.add('active');
+    }
+  }
+}
 let latestToken = "";
 
-
-window.onTurnstileSuccess = function(token) {
+window.onTurnstileSuccess = function (token) {
   latestToken = token;
 };
 
-
 function getTurnstileToken() {
   let token = latestToken || window.latestToken || "";
-  
 
   if (!token && window.turnstileWidgetId && window.turnstile) {
     try {
@@ -24,7 +44,7 @@ function getTurnstileToken() {
     } catch (e) {
     }
   }
-  
+
   return token;
 }
 
@@ -87,12 +107,14 @@ function displayProducts(list) {
 }
 
 function showLoggedInUI(user) {
+  const myItemsNavItem = document.getElementById("myItemsNavItem");
   isLoggedIn = true;
   currentUser = user;
   navUser.textContent = `Hi, ${user.name || "User"}`;
   loginBtn.classList.add("hidden");
   logoutBtn.classList.remove("hidden");
   if (messagesNavItem) messagesNavItem.classList.remove("hidden");
+  if (myItemsNavItem) myItemsNavItem.classList.remove("hidden");
   updateUnreadCount();
 }
 
@@ -103,6 +125,7 @@ function showLoggedOutUI() {
   loginBtn.classList.remove("hidden");
   logoutBtn.classList.add("hidden");
   if (messagesNavItem) messagesNavItem.classList.add("hidden");
+  if (myItemsNavItem) myItemsNavItem.classList.add("hidden");
   unreadBadge.classList.add("hidden");
 }
 
@@ -267,7 +290,7 @@ if (messagesLink) {
 
 (async () => {
   if (messagesNavItem) messagesNavItem.classList.add("hidden");
-  
+
   try {
     const user = await me();
     if (user && user.id) {
@@ -278,9 +301,9 @@ if (messagesLink) {
   } catch (err) {
     showLoggedOutUI();
   }
-  
+
   await refreshProducts();
-  
+
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('sell') === 'true') {
     if (isLoggedIn) {
@@ -290,15 +313,17 @@ if (messagesLink) {
     }
     window.history.replaceState({}, document.title, window.location.pathname);
   }
+  
+ 
+  setTimeout(highlightCurrentPage, 10);
 })();
 
 setInterval(updateUnreadCount, 30000);
 
-
 function updateButtonTextForMobile() {
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
-  
+
   if (window.innerWidth <= 768) {
     if (loginBtn && !loginBtn.classList.contains("hidden")) {
       loginBtn.textContent = "Login";
@@ -316,7 +341,6 @@ function updateButtonTextForMobile() {
   }
 }
 
-
 window.addEventListener('resize', updateButtonTextForMobile);
 window.addEventListener('load', updateButtonTextForMobile);
 
@@ -324,14 +348,14 @@ const originalShowLoggedInUI = showLoggedInUI;
 const originalShowLoggedOutUI = showLoggedOutUI;
 
 if (typeof showLoggedInUI === 'function') {
-  showLoggedInUI = function(user) {
+  showLoggedInUI = function (user) {
     originalShowLoggedInUI(user);
     setTimeout(updateButtonTextForMobile, 10);
   };
 }
 
 if (typeof showLoggedOutUI === 'function') {
-  showLoggedOutUI = function() {
+  showLoggedOutUI = function () {
     originalShowLoggedOutUI();
     setTimeout(updateButtonTextForMobile, 10);
   };
