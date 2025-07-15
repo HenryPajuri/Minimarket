@@ -4,11 +4,21 @@ let _cachedToken = null;
 
 async function getCsrfToken() {
   if (_cachedToken) return _cachedToken;
-  const response = await fetch(`${BASE}/csrf`, { credentials: "include" });
-  if (!response.ok) throw new Error("Failed to get CSRF token");
-  const { csrfToken } = await response.json();
-  _cachedToken = csrfToken;
-  return csrfToken;
+  
+  try {
+    const response = await fetch(`${BASE}/csrf`, { credentials: "include" });
+    if (!response.ok) {
+      console.error("CSRF token request failed:", response.status, response.statusText);
+      throw new Error("Failed to get CSRF token");
+    }
+    const { csrfToken } = await response.json();
+    _cachedToken = csrfToken;
+    console.log("CSRF token obtained successfully");
+    return csrfToken;
+  } catch (err) {
+    console.error("Error getting CSRF token:", err);
+    throw err;
+  }
 }
 
 async function request(path, method = "GET", data) {
@@ -20,17 +30,30 @@ async function request(path, method = "GET", data) {
     opts.body = JSON.stringify(data);
   }
 
+  console.log("Making request:", method, `${BASE}${path}`, opts);
+
   const response = await fetch(`${BASE}${path}`, opts);
   
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ msg: "Request failed" }));
-    throw new Error(errorData.msg || `HTTP ${response.status}`);
+    console.error("Request failed:", response.status, response.statusText);
+    
+    try {
+      const errorData = await response.json();
+      console.error("Error response body:", errorData);
+      throw new Error(errorData.msg || `HTTP ${response.status}`);
+    } catch (parseError) {
+      console.error("Could not parse error response:", parseError);
+      throw new Error(`HTTP ${response.status}`);
+    }
   }
   
   return response.status === 204 ? null : response.json();
 }
 
-export const signup = body => request("/auth/signup", "POST", body);
+export const signup = body => {
+  console.log("Signup called with:", body);
+  return request("/auth/signup", "POST", body);
+};
 export const login = body => request("/auth/login", "POST", body);
 export const logout = async () => {
   try {
