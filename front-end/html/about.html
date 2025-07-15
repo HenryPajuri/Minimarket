@@ -96,10 +96,7 @@
                 <input id="signupName" type="text" placeholder="Username" required>
                 <input id="signupEmail" type="email" placeholder="Email" required>
                 <input id="signupPassword" type="password" placeholder="Password" required>
-                <div id="turnstile-widget" class="cf-turnstile" data-sitekey="0x4AAAAAABkfTVCE9npIwrA-"
-                    data-callback="onTurnstileSuccess" data-error-callback="onTurnstileError"
-                    data-expired-callback="onTurnstileExpired">
-                </div>
+                <div id="turnstile-container"></div>
                 <button type="submit" class="btn-primary">Create account</button>
             </form>
         </div>
@@ -108,7 +105,39 @@
     <footer>
         <p>© 2025 MiniMarket. All rights reserved.</p>
     </footer>
+    <script>
+        window.onloadTurnstileCallback = function () {
+            console.log("🚀 Turnstile API loaded, rendering widget...");
 
+            try {
+                window.turnstileWidgetId = window.turnstile.render('#turnstile-container', {
+                    sitekey: '0x4AAAAAABkfTVCE9npIwrA-',
+                    callback: function (token) {
+                        console.log('✅ Explicit render success! Token:', token);
+                        window.latestToken = token;
+
+                        // Also try to call the global callback if it exists
+                        if (typeof window.onTurnstileSuccess === 'function') {
+                            window.onTurnstileSuccess(token);
+                        }
+                    },
+                    'error-callback': function (error) {
+                        console.error('❌ Explicit render error:', error);
+                        window.latestToken = "";
+                    },
+                    'expired-callback': function () {
+                        console.log('⏰ Token expired');
+                        window.latestToken = "";
+                    }
+                });
+                console.log('✅ Widget rendered with ID:', window.turnstileWidgetId);
+            } catch (error) {
+                console.error('💥 Failed to render Turnstile:', error);
+            }
+        };
+    </script>
+
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" defer></script>
     <script type="module" src="/js/about.js"></script>
 </body>
 

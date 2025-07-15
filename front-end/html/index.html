@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MiniMarket</title>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
   <header class="sticky-header">
     <div class="top-bar">
@@ -14,7 +15,7 @@
         <a class="logo" href="/html/index.html">MiniMarket</a>
         <div class="search-wrapper">
           <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none" />
             <line x1="16" y1="16" x2="22" y2="22" stroke="currentColor" stroke-width="2" />
           </svg>
           <input id="searchInput" type="text" placeholder="Search for items" autocomplete="off">
@@ -31,7 +32,7 @@
         <li><a href="/html/index.html">Browse</a></li>
         <li><a id="sellBtn" class="btn-link">Sell</a></li>
         <li id="messagesNavItem" class="hidden">
-          <a href="/html/messages.html" id="messagesLink">Messages 
+          <a href="/html/messages.html" id="messagesLink">Messages
             <span id="unreadBadge" class="badge hidden">0</span>
           </a>
         </li>
@@ -66,7 +67,8 @@
           <option value="shoes">Shoes</option>
           <option value="accessories">Accessories</option>
         </select>
-        <textarea id="itemDesc" name="description" rows="4" placeholder="Describe your item (size, condition…)"></textarea>
+        <textarea id="itemDesc" name="description" rows="4"
+          placeholder="Describe your item (size, condition…)"></textarea>
         <input id="itemImages" name="images" type="file" accept="image/*" multiple>
         <div id="thumbPreview" class="thumb-row"></div>
         <button type="submit" class="btn-primary">Add Item</button>
@@ -90,10 +92,8 @@
         <input id="signupName" type="text" placeholder="Username" required>
         <input id="signupEmail" type="email" placeholder="Email" required>
         <input id="signupPassword" type="password" placeholder="Password" required>
-         <div id="turnstile-widget" class="cf-turnstile" data-sitekey="0x4AAAAAABkfTVCE9npIwrA-"
-                    data-callback="onTurnstileSuccess" data-error-callback="onTurnstileError"
-                    data-expired-callback="onTurnstileExpired">
-                </div>
+
+        <div id="turnstile-container"></div>
         <button type="submit" class="btn-primary">Create account</button>
       </form>
     </div>
@@ -103,6 +103,41 @@
     <p>© 2025 MiniMarket. All rights reserved.</p>
   </footer>
 
+
+  <script>
+    window.onloadTurnstileCallback = function () {
+      console.log("🚀 Turnstile API loaded, rendering widget...");
+
+      try {
+        window.turnstileWidgetId = window.turnstile.render('#turnstile-container', {
+          sitekey: '0x4AAAAAABkfTVCE9npIwrA-',
+          callback: function (token) {
+            console.log('✅ Explicit render success! Token:', token);
+            window.latestToken = token;
+
+            // Also try to call the global callback if it exists
+            if (typeof window.onTurnstileSuccess === 'function') {
+              window.onTurnstileSuccess(token);
+            }
+          },
+          'error-callback': function (error) {
+            console.error('❌ Explicit render error:', error);
+            window.latestToken = "";
+          },
+          'expired-callback': function () {
+            console.log('⏰ Token expired');
+            window.latestToken = "";
+          }
+        });
+        console.log('✅ Widget rendered with ID:', window.turnstileWidgetId);
+      } catch (error) {
+        console.error('💥 Failed to render Turnstile:', error);
+      }
+    };
+  </script>
+
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" defer></script>
   <script type="module" src="/js/script.js"></script>
 </body>
+
 </html>

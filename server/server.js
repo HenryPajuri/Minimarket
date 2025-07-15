@@ -23,19 +23,22 @@ if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 
+
+
 app.use(
   helmet({
     contentSecurityPolicy: {
-      useDefaults: false,          // we'll specify everything ourselves
+      useDefaults: false,
       directives: {
         defaultSrc: ["'self'"],
         frameSrc: ["'self'", "https://challenges.cloudflare.com"],
         scriptSrc: [
           "'self'",
           "https://challenges.cloudflare.com",
-          "'unsafe-inline'"  // Temporarily allow all inline scripts
+          "'sha256-aKAwvWwisgzRhW5auVEe5FrNQ3wlLsxZvLvimiQ3+os='",
+          "'unsafe-inline'" // Keep this as backup
         ],
-        styleSrc: ["'self'", "'unsafe-inline'"],   // Turnstile injects inline styles
+        styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "data:"],
         connectSrc: ["'self'", "https://challenges.cloudflare.com"],
       },
