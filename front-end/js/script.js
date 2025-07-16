@@ -1,98 +1,23 @@
-import { signup, login, logout, me, getUnreadCount } from "../utils/api.js";
+import { initAuthUI, startUnreadPolling, openAuthModal, getCurrentUser, getIsLoggedIn } from "../utils/auth-ui.js";
+import { initNavigation } from "../utils/navigation.js";
+import { initCommonHandlers, initUserAuth } from "../utils/common-handlers.js";
 
-let isLoggedIn = false;
-let currentUser = null;
 let allProducts = [];
-
-
-function highlightCurrentPage() {
-  document.querySelectorAll('.nav-bar a').forEach(link => {
-    link.classList.remove('active');
-  });
-
-  const currentPath = window.location.pathname;
-  
-  const navMap = {
-    '/html/index.html': '.nav-bar a[href="/html/index.html"]',
-    '/': '.nav-bar a[href="/html/index.html"]',
-    '/html/messages.html': '.nav-bar a[href="/html/messages.html"]',
-    '/html/useritems.html': '.nav-bar a[href="/html/useritems.html"]', 
-    '/html/about.html': '.nav-bar a[href="/html/about.html"]',
-    '/html/item.html': '.nav-bar a[href="/html/index.html"]'
-  };
-
-  const selector = navMap[currentPath];
-  if (selector) {
-    const activeLink = document.querySelector(selector);
-    if (activeLink) {
-      activeLink.classList.add('active');
-    }
-  }
-}
-let latestToken = "";
-
-window.onTurnstileSuccess = function (token) {
-  latestToken = token;
-};
-
-function getTurnstileToken() {
-  let token = latestToken || window.latestToken || "";
-
-  if (!token && window.turnstileWidgetId && window.turnstile) {
-    try {
-      token = window.turnstile.getResponse(window.turnstileWidgetId);
-    } catch (e) {
-    }
-  }
-
-  return token;
-}
-
-const productGrid = document.getElementById("productGrid");
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const sellBtn = document.getElementById("sellBtn");
-const messagesLink = document.getElementById("messagesLink");
-const messagesNavItem = document.getElementById("messagesNavItem");
-const navUser = document.getElementById("navUser");
-const unreadBadge = document.getElementById("unreadBadge");
-const authModal = document.getElementById("authModal");
-const loginForm = document.getElementById("loginForm");
-const signupForm = document.getElementById("signupForm");
-const sellModal = document.getElementById("sellModal");
-const sellForm = document.getElementById("sellForm");
-const closeSellModal = document.getElementById("closeSellModal");
-const showLoginTab = document.getElementById("showLogin");
-const showSignupTab = document.getElementById("showSignup");
-const closeModalBtn = document.getElementById("closeModal");
-
 const selectedImages = [];
-const thumbRow = document.getElementById("thumbPreview");
 
-sellForm.itemImages.addEventListener("change", () => {
-  const files = [...sellForm.itemImages.files];
-  files.forEach((file) => {
-    if (selectedImages.length >= 3) {
-      alert("Max 3 images");
-      return;
-    }
-    selectedImages.push(file);
-    const url = URL.createObjectURL(file);
-    const img = document.createElement("img");
-    img.src = url;
-    thumbRow.appendChild(img);
-  });
-  sellForm.itemImages.value = "";
-});
+async function fetchProducts() {
+  const res = await fetch("/api/products", { credentials: "include" });
+  if (!res.ok) throw new Error("Unable to load products");
+  return res.json();
+}
 
-const searchInput = document.getElementById("searchInput");
-searchInput.addEventListener("input", () => {
-  const q = searchInput.value.trim().toLowerCase();
-  const list = q ? allProducts.filter(p => p.name.toLowerCase().includes(q)) : allProducts;
-  displayProducts(list);
-});
+async function refreshProducts() {
+  allProducts = await fetchProducts();
+  displayProducts(allProducts);
+}
 
 function displayProducts(list) {
+  const productGrid = document.getElementById("productGrid");
   productGrid.innerHTML = "";
   list.forEach((p) => {
     productGrid.insertAdjacentHTML("beforeend",
@@ -106,257 +31,118 @@ function displayProducts(list) {
   });
 }
 
-function showLoggedInUI(user) {
-  const myItemsNavItem = document.getElementById("myItemsNavItem");
-  isLoggedIn = true;
-  currentUser = user;
-  navUser.textContent = `Hi, ${user.name || "User"}`;
-  loginBtn.classList.add("hidden");
-  logoutBtn.classList.remove("hidden");
-  if (messagesNavItem) messagesNavItem.classList.remove("hidden");
-  if (myItemsNavItem) myItemsNavItem.classList.remove("hidden");
-  updateUnreadCount();
-}
-
-function showLoggedOutUI() {
-  isLoggedIn = false;
-  currentUser = null;
-  navUser.textContent = "";
-  loginBtn.classList.remove("hidden");
-  logoutBtn.classList.add("hidden");
-  if (messagesNavItem) messagesNavItem.classList.add("hidden");
-  if (myItemsNavItem) myItemsNavItem.classList.add("hidden");
-  unreadBadge.classList.add("hidden");
-}
-
-async function updateUnreadCount() {
-  if (!isLoggedIn) return;
-  try {
-    const { count } = await getUnreadCount();
-    if (count > 0) {
-      unreadBadge.textContent = count;
-      unreadBadge.classList.remove("hidden");
-    } else {
-      unreadBadge.classList.add("hidden");
-    }
-  } catch (err) {
-    console.error("Error updating unread count:", err);
-  }
-}
-
-async function fetchProducts() {
-  const res = await fetch("/api/products", { credentials: "include" });
-  if (!res.ok) throw new Error("Unable to load products");
-  return res.json();
-}
-
-async function refreshProducts() {
-  allProducts = await fetchProducts();
-  displayProducts(allProducts);
-}
-
 function filterItems(cat) {
   const list = cat === "all" ? allProducts : allProducts.filter((p) => p.category === cat);
   displayProducts(list);
 }
 
-document.querySelectorAll(".filters [data-cat]").forEach((btn) =>
-  btn.addEventListener("click", () => filterItems(btn.dataset.cat))
-);
-
-function toggleTab(mode = "login") {
-  const isLogin = mode === "login";
-  showLoginTab.classList.toggle("active", isLogin);
-  showSignupTab.classList.toggle("active", !isLogin);
-  loginForm.classList.toggle("hidden", !isLogin);
-  signupForm.classList.toggle("hidden", isLogin);
+function setupSearch() {
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.trim().toLowerCase();
+      const list = q ? allProducts.filter(p => p.name.toLowerCase().includes(q)) : allProducts;
+      displayProducts(list);
+    });
+  }
 }
 
-function openAuthModal(mode = "login") {
-  toggleTab(mode);
-  authModal.classList.remove("hidden");
+function setupFilters() {
+  document.querySelectorAll(".filters [data-cat]").forEach((btn) =>
+    btn.addEventListener("click", () => filterItems(btn.dataset.cat))
+  );
 }
 
-function closeAuthModal() {
-  authModal.classList.add("hidden");
-}
+function setupSellModal() {
+  const sellModal = document.getElementById("sellModal");
+  const sellForm = document.getElementById("sellForm");
+  const closeSellModal = document.getElementById("closeSellModal");
+  const thumbRow = document.getElementById("thumbPreview");
 
-loginBtn.addEventListener("click", () => openAuthModal("login"));
-logoutBtn.addEventListener("click", async (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  try {
-    await logout();
-    showLoggedOutUI();
-  } catch (err) {
-    console.error("Logout error:", err);
-    showLoggedOutUI();
-  }
-});
-
-closeModalBtn.addEventListener("click", closeAuthModal);
-authModal.addEventListener("click", (e) => {
-  if (e.target === authModal) closeAuthModal();
-});
-
-showLoginTab.addEventListener("click", () => toggleTab("login"));
-showSignupTab.addEventListener("click", () => toggleTab("signup"));
-
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const body = {
-    email: loginForm.loginEmail.value.trim().toLowerCase(),
-    password: loginForm.loginPassword.value,
-  };
-  const res = await login(body);
-  if (res.user) {
-    showLoggedInUI(res.user);
-    authModal.classList.add("hidden");
-    loginForm.reset();
-  } else {
-    alert(res?.msg || res?.errors?.[0]?.msg || "Login failed.");
-  }
-});
-
-signupForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const body = {
-    name: signupForm.signupName.value.trim(),
-    email: signupForm.signupEmail.value.trim().toLowerCase(),
-    password: signupForm.signupPassword.value,
-    captchaToken: getTurnstileToken(),
-  };
-  const res = await signup(body);
-  if (res.user) {
-    showLoggedInUI(res.user);
-    authModal.classList.add("hidden");
-    signupForm.reset();
-  } else {
-    alert(res?.msg || res?.errors?.[0]?.msg || "Signup failed.");
-  }
-});
-
-sellBtn.addEventListener("click", () => {
-  if (isLoggedIn) {
-    sellModal.classList.remove("hidden");
-  } else {
-    openAuthModal("login");
-  }
-});
-
-closeSellModal.addEventListener("click", () => sellModal.classList.add("hidden"));
-
-sellForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (selectedImages.length === 0) {
-    return alert("Please add at least one image.");
+  if (sellForm && sellForm.itemImages) {
+    sellForm.itemImages.addEventListener("change", () => {
+      const files = [...sellForm.itemImages.files];
+      files.forEach((file) => {
+        if (selectedImages.length >= 3) {
+          alert("Max 3 images");
+          return;
+        }
+        selectedImages.push(file);
+        const url = URL.createObjectURL(file);
+        const img = document.createElement("img");
+        img.src = url;
+        thumbRow.appendChild(img);
+      });
+      sellForm.itemImages.value = "";
+    });
   }
 
-  const { csrfToken } = await fetch("/api/csrf", { credentials: "include" }).then(r => r.json());
-  const fd = new FormData();
-  fd.append("name", sellForm.itemName.value.trim());
-  fd.append("price", sellForm.itemPrice.value);
-  fd.append("category", sellForm.itemCategory.value);
-  fd.append("description", sellForm.itemDesc.value.trim());
-  selectedImages.forEach((file) => fd.append("images", file));
-
-  const res = await fetch("/api/products", {
-    method: "POST",
-    body: fd,
-    credentials: "include",
-    headers: { "X-CSRF-Token": csrfToken }
-  });
-
-  if (res.ok) {
-    sellForm.reset();
-    thumbRow.innerHTML = "";
-    selectedImages.length = 0;
-    sellModal.classList.add("hidden");
-    await refreshProducts();
-  } else {
-    const data = await res.json();
-    alert(data?.errors?.[0]?.msg || data?.msg || "Error adding product");
+  if (closeSellModal) {
+    closeSellModal.addEventListener("click", () => sellModal.classList.add("hidden"));
   }
-});
 
-if (messagesLink) {
-  messagesLink.addEventListener("click", (e) => {
-    if (!isLoggedIn) {
+  if (sellForm) {
+    sellForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      openAuthModal("login");
-    }
-  });
+      if (selectedImages.length === 0) {
+        return alert("Please add at least one image.");
+      }
+
+      const { csrfToken } = await fetch("/api/csrf", { credentials: "include" }).then(r => r.json());
+      const fd = new FormData();
+      fd.append("name", sellForm.itemName.value.trim());
+      fd.append("price", sellForm.itemPrice.value);
+      fd.append("category", sellForm.itemCategory.value);
+      fd.append("description", sellForm.itemDesc.value.trim());
+      selectedImages.forEach((file) => fd.append("images", file));
+
+      const res = await fetch("/api/products", {
+        method: "POST",
+        body: fd,
+        credentials: "include",
+        headers: { "X-CSRF-Token": csrfToken }
+      });
+
+      if (res.ok) {
+        sellForm.reset();
+        thumbRow.innerHTML = "";
+        selectedImages.length = 0;
+        sellModal.classList.add("hidden");
+        await refreshProducts();
+      } else {
+        const data = await res.json();
+        alert(data?.errors?.[0]?.msg || data?.msg || "Error adding product");
+      }
+    });
+  }
 }
 
-(async () => {
-  if (messagesNavItem) messagesNavItem.classList.add("hidden");
-
-  try {
-    const user = await me();
-    if (user && user.id) {
-      showLoggedInUI(user);
-    } else {
-      showLoggedOutUI();
-    }
-  } catch (err) {
-    showLoggedOutUI();
-  }
-
-  await refreshProducts();
-
+function handleUrlParameters() {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('sell') === 'true') {
-    if (isLoggedIn) {
-      sellModal.classList.remove("hidden");
+    if (getIsLoggedIn()) {
+      document.getElementById("sellModal").classList.remove("hidden");
     } else {
       openAuthModal("login");
     }
     window.history.replaceState({}, document.title, window.location.pathname);
   }
+}
+
+(async () => {
+  initAuthUI();
+  initNavigation();
+  initCommonHandlers();
   
- 
-  setTimeout(highlightCurrentPage, 10);
+  setupSearch();
+  setupFilters();
+  setupSellModal();
+  
+  await initUserAuth();
+  
+  await refreshProducts();
+  
+  handleUrlParameters();
+  
+  startUnreadPolling();
 })();
-
-setInterval(updateUnreadCount, 30000);
-
-function updateButtonTextForMobile() {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  if (window.innerWidth <= 768) {
-    if (loginBtn && !loginBtn.classList.contains("hidden")) {
-      loginBtn.textContent = "Login";
-    }
-    if (logoutBtn && !logoutBtn.classList.contains("hidden")) {
-      logoutBtn.textContent = "Logout";
-    }
-  } else {
-    if (loginBtn && !loginBtn.classList.contains("hidden")) {
-      loginBtn.textContent = "Sign up | Log in";
-    }
-    if (logoutBtn && !logoutBtn.classList.contains("hidden")) {
-      logoutBtn.textContent = "Logout";
-    }
-  }
-}
-
-window.addEventListener('resize', updateButtonTextForMobile);
-window.addEventListener('load', updateButtonTextForMobile);
-
-const originalShowLoggedInUI = showLoggedInUI;
-const originalShowLoggedOutUI = showLoggedOutUI;
-
-if (typeof showLoggedInUI === 'function') {
-  showLoggedInUI = function (user) {
-    originalShowLoggedInUI(user);
-    setTimeout(updateButtonTextForMobile, 10);
-  };
-}
-
-if (typeof showLoggedOutUI === 'function') {
-  showLoggedOutUI = function () {
-    originalShowLoggedOutUI();
-    setTimeout(updateButtonTextForMobile, 10);
-  };
-}
