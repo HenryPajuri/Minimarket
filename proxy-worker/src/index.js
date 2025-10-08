@@ -41,8 +41,18 @@ export default {
       // Clone the response and add CORS headers
       const modifiedResponse = new Response(response.body, response);
 
-      // Add CORS headers for Cloudflare Pages
-      modifiedResponse.headers.set('Access-Control-Allow-Origin', 'https://c4109d10.minimarket.pages.dev');
+      // Add CORS headers for custom domain
+      const origin = request.headers.get('Origin');
+      const allowedOrigins = [
+        'https://plaireplai.com',
+        'https://www.plaireplai.com',
+        'https://c4109d10.minimarket.pages.dev'
+      ];
+
+      if (allowedOrigins.includes(origin)) {
+        modifiedResponse.headers.set('Access-Control-Allow-Origin', origin);
+      }
+
       modifiedResponse.headers.set('Access-Control-Allow-Credentials', 'true');
       modifiedResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       modifiedResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token');

@@ -2,10 +2,12 @@ name = "minimarket-proxy"
 main = "src/index.js"
 compatibility_date = "2024-01-01"
 
-# Routes - this worker will handle /api/* and /uploads/* requests
+# Routes - this worker will handle /api/* and /uploads/* requests on your custom domain
 routes = [
-  { pattern = "c4109d10.minimarket.pages.dev/api/*", zone_name = "" },
-  { pattern = "c4109d10.minimarket.pages.dev/uploads/*", zone_name = "" }
+  { pattern = "plaireplai.com/api/*", zone_name = "plaireplai.com" },
+  { pattern = "plaireplai.com/uploads/*", zone_name = "plaireplai.com" },
+  { pattern = "www.plaireplai.com/api/*", zone_name = "plaireplai.com" },
+  { pattern = "www.plaireplai.com/uploads/*", zone_name = "plaireplai.com" }
 ]
 
 [vars]
