@@ -47,8 +47,8 @@ app.use(
 );
 
 app.use(cors({
-  origin: process.env.NODE_ENV === "production" 
-    ? "https://minimarket-f1r5.onrender.com"
+  origin: process.env.NODE_ENV === "production"
+    ? ["https://minimarket-f1r5.onrender.com", "https://c4109d10.minimarket.pages.dev", "https://minimarket.pages.dev"]
     : "http://localhost:4000",
   credentials: true,
 }));

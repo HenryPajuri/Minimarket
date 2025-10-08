@@ -1,0 +1,21 @@
+name = "minimarket-api"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Environment variables (set these via wrangler secret)
+# MongoDB connection, JWT secrets, Turnstile secret, etc.
+[vars]
+NODE_ENV = "production"
+JWT_ISS = "minimarket"
+JWT_AUD = "minimarket-users"
+
+# R2 bucket for file uploads
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "minimarket-uploads"
+
+# Secrets (set via: wrangler secret put SECRET_NAME)
+# - MONGO_URI
+# - JWT_SECRET
+# - TURNSTILE_SECRET

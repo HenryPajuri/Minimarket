@@ -1,0 +1,12 @@
+name = "minimarket-proxy"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Routes - this worker will handle /api/* and /uploads/* requests
+routes = [
+  { pattern = "c4109d10.minimarket.pages.dev/api/*", zone_name = "" },
+  { pattern = "c4109d10.minimarket.pages.dev/uploads/*", zone_name = "" }
+]
+
+[vars]
+BACKEND_URL = "https://minimarket-f1r5.onrender.com"

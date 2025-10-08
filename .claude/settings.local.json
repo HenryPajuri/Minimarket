@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx wrangler:*)",
+      "Bash(npm install:*)",
+      "Bash(wrangler:*)",
+      "Read(//c/Users/henry/AppData/Roaming/xdg.config/.wrangler/logs/**)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
